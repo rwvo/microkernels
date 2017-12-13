@@ -1,0 +1,5 @@
+*.o
+*.d
+*~
+00_show_accelerators
+01_memcopy_bandwidth
