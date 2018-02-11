@@ -4,6 +4,7 @@
 #include <map>
 
 #include "device_info.h"
+#include "copy_operation.h"
 #include "utils.h"
 
 std::map<opts, std::size_t> init_options(){
@@ -30,6 +31,19 @@ int main(int argc, char** argv){
     std::wcerr << "using GPU " << i << '\n';
   }
   dev_info.validate_gpu_indices(gpus_used);
+
+  using operation = copy_operation<int>;
+  std::vector<operation> operations;
+  if(options[opts::h2d]){
+    for(auto gpu: gpus_used){
+      operations.push_back(operation(0, gpu, options[opts::size], options[opts::pinned]));
+    }
+  }
+  if(options[opts::d2h]){
+    for(auto gpu: gpus_used){
+      operations.push_back(operation(gpu, 0, options[opts::size], options[opts::pinned]));
+    }
+  }
 		       
   
   std::wcerr << "done\n";
