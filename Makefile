@@ -8,7 +8,7 @@ CXXFLAGS += -O3
 
 BENCHMARKS = 00_show_accelerators \
              01_memcopy_bandwidth
-COMMON_OBJS = utils.o 
+COMMON_OBJS = utils.o device_info.o
 
 OBJECTS = $(patsubst %,%.o,$(BENCHMARKS))
 OBJECTS += $(COMMON_OBJS)
