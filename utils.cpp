@@ -18,6 +18,7 @@ void parse_options(std::map<opts, std::size_t>& options, int argc, char** argv){
   str2opt["h2d"] = opts::h2d;
   str2opt["d2h"] = opts::d2h;
   str2opt["pinned"] = opts::pinned;
+  str2opt["-gpu"] = opts::gpu;
   str2opt["-s"] = opts::size;
   str2opt["-r"] = opts::reps;
   

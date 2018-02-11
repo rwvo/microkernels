@@ -11,6 +11,7 @@ std::map<opts, std::size_t> init_options(){
   options[opts::h2d] = 0;
   options[opts::d2h] = 0;
   options[opts::pinned] = 0;
+  options[opts::gpu] = 1; // bitmask denoting gpu devices used, e.g. 11 = 1 + 2 + 8: use devices 1, 2, and 4.
   options[opts::size] = 0;
   options[opts::reps] = 1;
 

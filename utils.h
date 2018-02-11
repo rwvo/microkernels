@@ -6,7 +6,14 @@
 #include <hc.hpp>
 
 //--- stuff for parsing of command line options
-enum class opts { h2d, d2h, pinned, size, reps };
+enum class opts {
+    h2d,    // host to device copy
+    d2h,    // device to host copy
+    pinned, // host memory pinned/unpinned
+    gpu,    // gpu devices involved in copy
+    size,   // size of data transfers
+    reps    // number of times copy is repeated
+};
 
 void parse_options(std::map<opts, std::size_t>& options, int argc, char** argv);
 
