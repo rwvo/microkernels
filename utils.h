@@ -17,4 +17,7 @@ enum class opts {
 
 void parse_options(std::map<opts, std::size_t>& options, int argc, char** argv);
 
+//--- 
+std::vector<size_t> extract_gpu_indices(size_t gpu_mask);
+
 #endif // _UTILS_H_

@@ -76,4 +76,14 @@ void parse_options(std::map<opts, std::size_t>& options, int argc, char** argv){
 }
 
 
+std::vector<size_t> extract_gpu_indices(size_t gpu_mask){
+  std::vector<size_t> gpu_indices;
+  for(std::size_t gpu_index = 1; gpu_mask; ++gpu_index){
+    if(gpu_mask & 0x1){
+      gpu_indices.push_back(gpu_index);
+    }
+    gpu_mask >>= 1;
+  }
+  return gpu_indices;
+}
 

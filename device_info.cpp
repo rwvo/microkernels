@@ -1,5 +1,6 @@
 #include "device_info.h"
 #include <iostream>
+#include <algorithm>
 
 namespace {
   // returns a vector of indices of "accelerators" that are actual GPU devices 
@@ -29,4 +30,21 @@ void device_info::show() const {
     std::wcerr << acc.get_description() << '\n';
     std::wcerr << "device memory " << acc.get_dedicated_memory() << " bytes\n\n";
   }
+}
+
+
+bool device_info::is_gpu_index(size_t i) const {
+  return std::find(m_gpu_indices.cbegin(), m_gpu_indices.cend(), i) != m_gpu_indices.cend();
+}
+
+bool device_info::validate_gpu_indices(const std::vector<size_t>& indices) const {
+  bool all_valid = true;
+  for(auto i: indices){
+    auto is_valid = is_gpu_index(i);
+    if(not is_valid){
+      std::wcerr << "invalid GPU index: " << i << '\n';
+    }
+    all_valid &= is_valid;
+  }
+  return all_valid;
 }
