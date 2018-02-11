@@ -9,7 +9,7 @@ public:
   void show() const;
 private:
   const std::vector<hc::accelerator> m_accelerators;
-  const std::vector<int> m_gpu_indices;
+  const std::vector<size_t> m_gpu_indices;
 };
 
 #endif // _DEVICE_INFO_
