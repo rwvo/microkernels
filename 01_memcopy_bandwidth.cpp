@@ -1,6 +1,7 @@
 #include <hc.hpp>
 #include <vector>
 #include <iostream>
+#include <memory>
 #include <map>
 
 #include "device_info.h"
@@ -33,15 +34,19 @@ int main(int argc, char** argv){
   dev_info.validate_gpu_indices(gpus_used);
 
   using operation = copy_operation<int>;
-  std::vector<operation> operations;
+  std::vector<std::shared_ptr<operation>> operations;
   if(options[opts::h2d]){
     for(auto gpu: gpus_used){
-      operations.push_back(operation(0, gpu, options[opts::size], options[opts::pinned]));
+      operations.push_back(std::make_shared<operation>(0, gpu, options[opts::size],
+						       options[opts::pinned],
+						       dev_info));
     }
   }
   if(options[opts::d2h]){
     for(auto gpu: gpus_used){
-      operations.push_back(operation(gpu, 0, options[opts::size], options[opts::pinned]));
+      operations.push_back(std::make_shared<operation>(gpu, 0, options[opts::size],
+						       options[opts::pinned],
+						       dev_info));
     }
   }
 		       
