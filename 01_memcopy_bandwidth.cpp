@@ -50,7 +50,10 @@ int main(int argc, char** argv){
 						       dev_info));
     }
   }
-		       
+
+  for(auto op: operations){
+    op->print_info();
+  }
   
   std::wcerr << "done\n";
 }

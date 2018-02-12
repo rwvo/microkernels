@@ -15,6 +15,9 @@ public:
 		 size_t size, bool pinned, device_info& dev_info);
   copy_operation(const copy_operation&);
   ~copy_operation();
+
+  void print_info() const;
+  
 private:
   const device_info& m_dev_info;
   T* m_source;
@@ -101,6 +104,11 @@ copy_operation<T>::copy_operation(size_t source_acc_no, size_t dest_acc_no,
     m_size(size),
     m_pinned(pinned)
 {
+  // BODY INTENTIONALLY EMPTY
+}
+
+template<typename T>
+void copy_operation<T>::print_info() const {
   std::wcerr << "copy " << m_size << " bytes from " << m_source_acc_no
 	     << " to " << m_dest_acc_no << " using"
 	     << (m_pinned ? " host-pinned" : " regular")
