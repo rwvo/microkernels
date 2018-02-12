@@ -6,6 +6,7 @@
 
 #include "device_info.h"
 #include "copy_operation.h"
+#include "scoped_timers.h"
 #include "utils.h"
 
 std::map<opts, std::size_t> init_options(){
@@ -54,6 +55,23 @@ int main(int argc, char** argv){
   for(auto op: operations){
     op->print_info();
   }
+  
+  float tm;
+  {
+    SystemTimer timer(tm);
+    for(auto op: operations){
+      op->copy_async();
+    }
+    
+    for(auto op: operations){
+      op->wait();
+    }
+  }
+
+  auto Gib = operations.size() * ( static_cast<float>(options[opts::size]) / (1 << 30) );
+  auto bw = Gib / tm;
+
+  std::wcerr << "Copied " << Gib << " Gib in " << tm << " seconds (" << bw << " Gib/s)\n";
   
   std::wcerr << "done\n";
 }

@@ -17,10 +17,14 @@ public:
   copy_operation(copy_operation&&) = delete;
   ~copy_operation();
 
+  void copy_async();
+  void wait() const;
+  
   void print_info() const;
   
 private:
   const device_info& m_dev_info;
+  hc::completion_future m_future;
   T* m_source;
   T* m_dest;
   hc::array<T, 1>* m_source_array;
@@ -31,7 +35,6 @@ private:
   size_t m_dest_acc_no;
   size_t m_size;
   bool m_pinned;
-  
 };
 
 //--- implementation of template members
@@ -92,6 +95,7 @@ template<typename T>
 copy_operation<T>::copy_operation(size_t source_acc_no, size_t dest_acc_no,
 				  size_t size, bool pinned, device_info& dev_info)
   : m_dev_info(dev_info),
+    m_future(),
     m_source(allocate<T>(source_acc_no, size, pinned, dev_info)),
     m_dest(allocate<T>(dest_acc_no, size, pinned, dev_info)),
     m_source_array(create_array<T>(source_acc_no, size, m_source, dev_info)),
@@ -105,7 +109,22 @@ copy_operation<T>::copy_operation(size_t source_acc_no, size_t dest_acc_no,
     m_size(size),
     m_pinned(pinned)
 {
-  // BODY INTENTIONALLY EMPTY
+  assert(m_source_array or m_dest_array); // we need at least one accelerator_view
+}
+
+template<typename T>
+void copy_operation<T>::copy_async() {
+  assert(m_pinned or (m_source_acc_no and m_dest_acc_no));
+  auto av = m_source_array ? m_source_array->get_accelerator_view()
+    : m_dest_array->get_accelerator_view();
+  m_future = av.copy_async(m_source_accelerator_pointer, m_dest_accelerator_pointer,
+			   m_size);
+}
+
+template<typename T>
+void copy_operation<T>::wait() const {
+  assert(m_future.valid());
+  m_future.wait();
 }
 
 template<typename T>
