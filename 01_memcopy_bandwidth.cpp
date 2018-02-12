@@ -37,27 +37,38 @@ int main(int argc, char** argv){
 
   using operation = copy_operation<int>;
   std::vector<std::shared_ptr<operation>> operations;
-  if(options[opts::h2d]){
-    for(auto gpu: gpus_used){
-      operations.push_back(std::make_shared<operation>(0, gpu, options[opts::size],
-						       options[opts::pinned],
-						       dev_info));
+
+  float tm;
+  {
+    SystemTimer timer(tm);
+    if(options[opts::h2d]){
+      for(auto gpu: gpus_used){
+	operations.push_back(std::make_shared<operation>(0, gpu, options[opts::size],
+							 options[opts::pinned],
+							 dev_info));
+      }
     }
-  }
-  if(options[opts::d2h]){
-    for(auto gpu: gpus_used){
-      operations.push_back(std::make_shared<operation>(gpu, 0, options[opts::size],
-						       options[opts::pinned],
-						       dev_info));
+    if(options[opts::d2h]){
+      for(auto gpu: gpus_used){
+	operations.push_back(std::make_shared<operation>(gpu, 0, options[opts::size],
+							 options[opts::pinned],
+							 dev_info));
+      }
     }
   }
 
+  auto Gib = operations.size() * ( static_cast<float>(options[opts::size]) / (1 << 30) );
+  std::wcerr << "Allocated " << Gib << " Gib on the host, and "
+	     <<  operations.size() << " * " << Gib/operations.size() << " Gib on "
+	     << gpus_used.size() << " GPUs in " << tm << " seconds\n";
+  
+  
   for(auto op: operations){
     op->print_info();
   }
   
-  float tm;
   {
+    std::wcerr << "starting copies\n";
     SystemTimer timer(tm);
     for(auto op: operations){
       op->copy_async();
@@ -68,7 +79,6 @@ int main(int argc, char** argv){
     }
   }
 
-  auto Gib = operations.size() * ( static_cast<float>(options[opts::size]) / (1 << 30) );
   auto bw = Gib / tm;
 
   std::wcerr << "Copied " << Gib << " Gib in " << tm << " seconds (" << bw << " Gib/s)\n";
