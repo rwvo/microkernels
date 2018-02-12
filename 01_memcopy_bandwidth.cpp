@@ -31,7 +31,8 @@ int main(int argc, char** argv){
   for(auto i: gpus_used){
     std::wcerr << "using GPU " << i << '\n';
   }
-  dev_info.validate_gpu_indices(gpus_used);
+
+  if (!dev_info.validate_gpu_indices(gpus_used)){ exit(1); };
 
   using operation = copy_operation<int>;
   std::vector<std::shared_ptr<operation>> operations;
