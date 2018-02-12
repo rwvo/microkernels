@@ -13,7 +13,8 @@ class copy_operation {
 public:
   copy_operation(size_t source_acc_no, size_t dest_acc_no,
 		 size_t size, bool pinned, device_info& dev_info);
-  copy_operation(const copy_operation&);
+  copy_operation(const copy_operation&) = delete;
+  copy_operation(copy_operation&&) = delete;
   ~copy_operation();
 
   void print_info() const;
