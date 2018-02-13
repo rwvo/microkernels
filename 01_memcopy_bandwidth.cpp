@@ -79,10 +79,17 @@ int main(int argc, char** argv){
     }
   }
 
+  float host_alloc_time = 0;
+  float device_alloc_time = 0;
   for(auto op: operations){
+    host_alloc_time += op->host_alloc_time();
+    device_alloc_time += op->device_alloc_time();
     std::wcerr << "host allocation:   " << op->host_alloc_time() << " sec\n";
     std::wcerr << "device allocation: " << op->device_alloc_time() << " sec\n";
   }
+  std::wcerr << "total host allocation:   " << host_alloc_time << " sec\n";
+  std::wcerr << "total device allocation: " << device_alloc_time << " sec\n";
+  std::wcerr << "total allocation time:   " << host_alloc_time + device_alloc_time << " sec\n";
 
   auto bw = Gib / tm;
 
