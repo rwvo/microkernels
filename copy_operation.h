@@ -7,6 +7,7 @@
 #include <cassert>
 #include "hc_am.hpp"
 #include "device_info.h"
+#include "scoped_timers.h"
 
 template<typename T>
 class copy_operation {
@@ -21,10 +22,14 @@ public:
   void wait() const;
   
   void print_info() const;
+  float host_alloc_time() const { return m_host_alloc_time; }
+  float device_alloc_time() const { return m_device_alloc_time; }
   
 private:
   const device_info& m_dev_info;
   hc::completion_future m_future;
+  float m_host_alloc_time;
+  float m_device_alloc_time;
   T* m_source;
   T* m_dest;
   hc::array<T, 1>* m_source_array;
@@ -42,10 +47,13 @@ private:
 namespace {
 
   template<typename T>
-  T* allocate(size_t acc_no, size_t size, bool pinned, device_info& dev_info){
+  T* allocate(size_t acc_no, size_t size, bool pinned, device_info& dev_info,
+	      float& host_alloc_time, float& device_alloc_time){
     if(acc_no){ // device allocation
+      SystemTimer timer(device_alloc_time);
       return static_cast<T*>(hc::am_alloc(size, dev_info.m_accelerators[acc_no], 0));
     } else { // host allocation
+      SystemTimer timer(host_alloc_time);
       if(pinned){ // host-pinned memory
 	hc::accelerator default_acc;
 	return static_cast<T*>(hc::am_alloc(size, default_acc, amHostPinned));
@@ -96,8 +104,12 @@ copy_operation<T>::copy_operation(size_t source_acc_no, size_t dest_acc_no,
 				  size_t size, bool pinned, device_info& dev_info)
   : m_dev_info(dev_info),
     m_future(),
-    m_source(allocate<T>(source_acc_no, size, pinned, dev_info)),
-    m_dest(allocate<T>(dest_acc_no, size, pinned, dev_info)),
+    m_host_alloc_time(),
+    m_device_alloc_time(),
+    m_source(allocate<T>(source_acc_no, size, pinned, dev_info,
+			 m_host_alloc_time, m_device_alloc_time)),
+    m_dest(allocate<T>(dest_acc_no, size, pinned, dev_info,
+		       m_host_alloc_time, m_device_alloc_time)),
     m_source_array(create_array<T>(source_acc_no, size, m_source, dev_info)),
     m_dest_array(create_array<T>(dest_acc_no, size, m_dest, dev_info)),
     m_source_accelerator_pointer

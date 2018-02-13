@@ -79,6 +79,11 @@ int main(int argc, char** argv){
     }
   }
 
+  for(auto op: operations){
+    std::wcerr << "host allocation:   " << op->host_alloc_time() << " sec\n";
+    std::wcerr << "device allocation: " << op->device_alloc_time() << " sec\n";
+  }
+
   auto bw = Gib / tm;
 
   std::wcerr << "Copied " << Gib << " Gib in " << tm << " seconds (" << bw << " Gib/s)\n";
